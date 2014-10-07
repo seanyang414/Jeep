@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="JeepApp">
+<head>
+	<meta charset="UTF-8">
+	<title>Jeep Wrangler Unlimited</title>
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:700,400' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="CSS/main.css">
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.1/angular.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.10/angular-route.min.js"></script>	
+	<script>
+	var JeepApp = angular.module("JeepApp",["ngRoute"]);
+
+	JeepApp.config(function($routeProvider){
+		$routeProvider.
+			when(
+				'/:modelId',
+				{
+					controller:"modelDetailCtrl",
+					templateUrl:"modelDetail.html"
+				}
+			).
+			otherwise({
+				redirectTo:'/'
+			});
+	});
+
+	JeepApp.factory('JeepmodelsFact', function($http){
+		return {
+			list: function(callback){
+				$http({
+					method:'GET',
+					url:'JSON/Jeep_Wrangle_unlimited_models.json',
+					cache:true,
+				}).success(callback);
+			},
+			find: function(id, callback){
+				$http({
+					method:'GET',
+					url:'JSON/Jeep_Wrangle_unlimited_'+id+'.json',
+					cache:true,
+				}).success(callback);
+			}
+		};
+	});
+
+	JeepApp.controller("modelsCtrl",function($scope, JeepmodelsFact){
+		JeepmodelsFact.list(function(data){
+			$scope.models = data;
+			console.log($scope.models);
+
+		});
+	});
+
+	JeepApp.controller("modelDetailCtrl",function($scope, $routeParams, JeepmodelsFact){
+		JeepmodelsFact.find($routeParams.modelId,function(data){
+			$scope.model = data;
+			console.log($scope.model);
+		});
+	});
+	</script>
+	<script src='JS/main.js'></script>
+</head>
+<body>
+	<div class='container'>
+		<div class='modelList' ng-controller="modelsCtrl">
+			<h1 id='asd'>Jeep Wrangle Unlimited Models:</h1>
+			<br>
+			<br>
+			<ul>
+				<li ng-repeat="model in models">
+					<a href="#/{{model.id}}"><img class='modelImg' src="{{model.imageURL}}" alt=""></a>
+					<div style='clear:both;'></div>
+					<a href="#/{{model.id}}"><h3 class='modleName'>{{model.name}}</h3></a>
+					
+				</li>			
+			</ul>
+		</div>
+		<div style='clear:both;'></div>
+		<br>
+		<br>
+		<div class='modelDetail'>
+			<div ng-view=""></div>
+		</div>		
+	</div>
+</body>
+</html>
+
